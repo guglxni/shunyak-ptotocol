@@ -1,12 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "functions": {
-    "api/**/*.py": {
-      "runtime": "@vercel/python@4.6.0",
-      "maxDuration": 60
-    }
-  },
   "builds": [
     {
       "src": "frontend/package.json",
