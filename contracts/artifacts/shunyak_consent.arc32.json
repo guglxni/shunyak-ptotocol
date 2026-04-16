@@ -1,0 +1,66 @@
+{
+  "methods": [
+    {
+      "args": [
+        {
+          "name": "zk_proof",
+          "type": "byte[]"
+        },
+        {
+          "name": "public_inputs",
+          "type": "byte[]"
+        },
+        {
+          "name": "user_pubkey",
+          "type": "byte[]"
+        },
+        {
+          "name": "enterprise_pubkey",
+          "type": "byte[]"
+        },
+        {
+          "name": "expiry",
+          "type": "uint64"
+        }
+      ],
+      "name": "register_consent",
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "user_pubkey",
+          "type": "byte[]"
+        },
+        {
+          "name": "enterprise_pubkey",
+          "type": "byte[]"
+        }
+      ],
+      "name": "revoke_consent",
+      "returns": {
+        "type": "void"
+      }
+    },
+    {
+      "args": [
+        {
+          "name": "user_pubkey",
+          "type": "byte[]"
+        },
+        {
+          "name": "enterprise_pubkey",
+          "type": "byte[]"
+        }
+      ],
+      "name": "check_status",
+      "returns": {
+        "type": "(bool,uint64)"
+      }
+    }
+  ],
+  "name": "ShunyakConsent",
+  "networks": {}
+}

@@ -1,0 +1,9 @@
+version: "1.0"
+terms: []
+policies:
+  - tool: execute_algo_settlement
+    requires:
+      - tool: verify_shunyak_compliance
+        status: success
+    description: >
+      Settlement is structurally blocked until compliance check passes.

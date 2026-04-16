@@ -1,0 +1,302 @@
+#pragma version 10
+txn NumAppArgs
+int 0
+==
+bnz main_l8
+txna ApplicationArgs 0
+method "register_consent(byte[],byte[],byte[],byte[],uint64)void"
+==
+bnz main_l7
+txna ApplicationArgs 0
+method "revoke_consent(byte[],byte[])void"
+==
+bnz main_l6
+txna ApplicationArgs 0
+method "check_status(byte[],byte[])(bool,uint64)"
+==
+bnz main_l5
+err
+main_l5:
+txn OnCompletion
+int NoOp
+==
+txn ApplicationID
+int 0
+!=
+&&
+assert
+callsub checkstatuscaster_5
+int 1
+return
+main_l6:
+txn OnCompletion
+int NoOp
+==
+txn ApplicationID
+int 0
+!=
+&&
+assert
+callsub revokeconsentcaster_4
+int 1
+return
+main_l7:
+txn OnCompletion
+int NoOp
+==
+txn ApplicationID
+int 0
+!=
+&&
+assert
+callsub registerconsentcaster_3
+int 1
+return
+main_l8:
+txn OnCompletion
+int NoOp
+==
+bnz main_l10
+err
+main_l10:
+txn ApplicationID
+int 0
+==
+assert
+txn NumAppArgs
+int 1
+==
+bnz main_l13
+byte "registrar"
+txn Sender
+app_global_put
+main_l12:
+int 1
+return
+main_l13:
+txna ApplicationArgs 0
+len
+int 32
+==
+assert
+byte "registrar"
+txna ApplicationArgs 0
+app_global_put
+b main_l12
+
+// register_consent
+registerconsent_0:
+proto 5 0
+txn Sender
+byte "registrar"
+app_global_get
+==
+assert
+frame_dig -1
+global LatestTimestamp
+>
+assert
+frame_dig -5
+extract 2 0
+len
+int 0
+>
+assert
+frame_dig -4
+extract 2 0
+len
+int 32
+>=
+assert
+frame_dig -3
+extract 2 0
+len
+int 32
+==
+assert
+frame_dig -2
+extract 2 0
+len
+int 32
+==
+assert
+frame_dig -3
+extract 2 0
+frame_dig -2
+extract 2 0
+concat
+global CurrentApplicationID
+itob
+concat
+sha256
+store 0
+frame_dig -4
+extract 2 0
+extract 0 32
+store 1
+load 0
+load 1
+frame_dig -1
+itob
+concat
+byte 0x01
+concat
+int 23
+bzero
+concat
+box_put
+retsub
+
+// revoke_consent
+revokeconsent_1:
+proto 2 0
+txn Sender
+byte "registrar"
+app_global_get
+==
+assert
+frame_dig -2
+extract 2 0
+len
+int 32
+==
+assert
+frame_dig -1
+extract 2 0
+len
+int 32
+==
+assert
+frame_dig -2
+extract 2 0
+frame_dig -1
+extract 2 0
+concat
+global CurrentApplicationID
+itob
+concat
+sha256
+box_del
+assert
+retsub
+
+// check_status
+checkstatus_2:
+proto 2 1
+byte ""
+int 0
+dupn 3
+byte ""
+dup
+frame_dig -2
+extract 2 0
+len
+int 32
+==
+assert
+frame_dig -1
+extract 2 0
+len
+int 32
+==
+assert
+frame_dig -2
+extract 2 0
+frame_dig -1
+extract 2 0
+concat
+global CurrentApplicationID
+itob
+concat
+sha256
+box_get
+store 3
+store 2
+load 3
+bnz checkstatus_2_l2
+int 0
+frame_bury 2
+int 0
+!
+!
+frame_bury 1
+b checkstatus_2_l3
+checkstatus_2_l2:
+load 2
+extract 32 8
+btoi
+frame_bury 2
+frame_dig 2
+global LatestTimestamp
+>
+!
+!
+frame_bury 1
+checkstatus_2_l3:
+byte 0x00
+int 0
+frame_dig 1
+setbit
+frame_dig 2
+itob
+concat
+frame_bury 0
+retsub
+
+// register_consent_caster
+registerconsentcaster_3:
+proto 0 0
+byte ""
+dupn 3
+int 0
+txna ApplicationArgs 1
+frame_bury 0
+txna ApplicationArgs 2
+frame_bury 1
+txna ApplicationArgs 3
+frame_bury 2
+txna ApplicationArgs 4
+frame_bury 3
+txna ApplicationArgs 5
+btoi
+frame_bury 4
+frame_dig 0
+frame_dig 1
+frame_dig 2
+frame_dig 3
+frame_dig 4
+callsub registerconsent_0
+retsub
+
+// revoke_consent_caster
+revokeconsentcaster_4:
+proto 0 0
+byte ""
+dup
+txna ApplicationArgs 1
+frame_bury 0
+txna ApplicationArgs 2
+frame_bury 1
+frame_dig 0
+frame_dig 1
+callsub revokeconsent_1
+retsub
+
+// check_status_caster
+checkstatuscaster_5:
+proto 0 0
+byte ""
+dupn 2
+txna ApplicationArgs 1
+frame_bury 1
+txna ApplicationArgs 2
+frame_bury 2
+frame_dig 1
+frame_dig 2
+callsub checkstatus_2
+frame_bury 0
+byte 0x151f7c75
+frame_dig 0
+concat
+log
+retsub

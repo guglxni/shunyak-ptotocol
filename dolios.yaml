@@ -1,0 +1,12 @@
+sandbox:
+  enabled: false
+
+workflow:
+  enabled: true
+  policy_file: policies/workflow.yaml
+
+audit:
+  enabled: true
+  log_path: /tmp/shunyak-audit.jsonl
+
+aidlc_enabled: false

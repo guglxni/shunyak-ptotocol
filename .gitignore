@@ -1,0 +1,53 @@
+# OS / Editor
+.DS_Store
+.idea/
+.vscode/
+
+# Environment / Secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+
+# Node / Next
+node_modules/
+frontend/node_modules/
+frontend/.next/
+.next/
+out/
+frontend/out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Vercel
+.vercel/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+.venv/
+.venv-audit/
+venv/
+
+# Build / Runtime artifacts
+*.log
+.tmp/
+.benchmarks/
+
+# Generated deployment state
+contracts/artifacts/deployment-result.json
+
+# Local references cloned for integration research
+external/

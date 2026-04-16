@@ -1,0 +1,13 @@
+version: "1.0"
+tool: verify_shunyak_compliance
+network:
+  allow_domains:
+    - testnet-api.algonode.cloud
+    - testnet-idx.algonode.cloud
+filesystem:
+  read: []
+  write: []
+dlp_allowed: []
+description: >
+  Shunyak compliance verification tool. Network access restricted to the
+  Algorand testnet endpoint.

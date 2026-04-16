@@ -1,0 +1,8 @@
+py-algorand-sdk>=2.7.0
+algokit-utils>=3.0.0
+pyteal>=0.26.0
+cryptography>=42.0
+httpx>=0.27.0
+pydantic>=2.7.0
+pyyaml>=6.0.1
+python-dotenv>=1.0.1

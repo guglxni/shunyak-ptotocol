@@ -1,0 +1,54 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "functions": {
+    "api/**/*.py": {
+      "runtime": "@vercel/python@4.6.0",
+      "maxDuration": 60
+    }
+  },
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/next"
+    },
+    {
+      "src": "api/consent/register.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/consent/status.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/consent/revoke.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/agent/execute.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/agent/stream.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/algorand/showcase.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "api/audit/log.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/$1"
+    }
+  ]
+}
