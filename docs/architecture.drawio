@@ -1,0 +1,205 @@
+<mxfile host="app.diagrams.net" modified="2026-04-16T00:00:00.000Z" agent="Shunyak Protocol" version="24.0.0">
+  <diagram name="System Architecture" id="shunyak-arch">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="Shunyak Protocol — System Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1;fontColor=#FAFAFA;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="500" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="subtitle" value="DPDP-native consent governance for autonomous agents on Algorand TestNet" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#A1A1AA;" vertex="1" parent="1">
+          <mxGeometry x="40" y="55" width="500" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- Frontend Layer -->
+        <mxCell id="fe-group" value="Frontend (Next.js 16 / Vercel)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=11;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="460" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="s1" value="Screen 1&#xa;Consent Registration" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="60" y="140" width="95" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2" value="Screen 2&#xa;Blocked Path" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="170" y="140" width="95" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3" value="Screen 3&#xa;Authorized Settlement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="280" y="140" width="95" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="s4" value="Screen 4&#xa;Runtime Showcase" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="390" y="140" width="95" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="sse" value="SSE Stream Client" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#71717A;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="60" y="210" width="200" height="35" as="geometry"/>
+        </mxCell>
+        <mxCell id="api-client" value="API Client (lib/api.ts)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#71717A;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="280" y="210" width="200" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- API Layer -->
+        <mxCell id="api-group" value="API Layer (Vercel Python Functions)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=11;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="340" width="460" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="consent-api" value="/api/consent/*&#xa;register / status / revoke" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="60" y="380" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="agent-api" value="/api/agent/*&#xa;execute / stream (SSE)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="210" y="380" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="showcase-api" value="/api/algorand/showcase&#xa;/api/audit/log" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="360" y="380" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="security" value="Security: Operator Auth / Rate Limits / DLP Scanner / Stream Tickets" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#71717A;fontSize=8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="450" width="420" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Agent Layer -->
+        <mxCell id="agent-group" value="Dolios Agent (Hardened)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=11;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="560" y="340" width="360" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="workflow" value="WorkflowPolicy DAG&#xa;settlement requires compliance" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="580" y="380" width="150" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="vault" value="CredentialVault&#xa;signing key injection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="750" y="380" width="150" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="tool1" value="verify_shunyak_compliance" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#71717A;fontSize=8;" vertex="1" parent="1">
+          <mxGeometry x="580" y="450" width="150" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="tool2" value="execute_algo_settlement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#71717A;fontSize=8;" vertex="1" parent="1">
+          <mxGeometry x="750" y="450" width="150" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Identity Layer -->
+        <mxCell id="identity-group" value="Identity + ZK" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=11;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="560" y="100" width="360" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="digilocker" value="DigiLocker (Setu Sandbox)&#xa;Identity Attestation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="580" y="140" width="150" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="algoplonk" value="AlgoPlonk&#xa;ZK Proof Generation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="750" y="140" width="150" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="consent-token" value="Consent Token (HMAC-signed JWT-like)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#71717A;fontSize=8;" vertex="1" parent="1">
+          <mxGeometry x="580" y="210" width="310" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Algorand TestNet -->
+        <mxCell id="algo-group" value="Algorand TestNet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=11;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="560" width="880" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="contract" value="ShunyakConsent App&#xa;ID: 758909516&#xa;&#xa;register_consent()&#xa;revoke_consent()&#xa;check_status()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="600" width="160" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="boxes" value="Box Storage&#xa;&#xa;5 consent boxes&#xa;2 ACTIVE / 3 EXPIRED&#xa;SHA256(user+enterprise+app)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="250" y="600" width="170" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="signer" value="Signer Account&#xa;&#xa;SHYFV65O...J7CFU&#xa;Balance: 5.566 ALGO&#xa;3 apps created" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="450" y="600" width="160" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="settlement-tx" value="Settlement Transactions&#xa;&#xa;PaymentTxn (ALGO)&#xa;AssetTransferTxn (ASA)&#xa;10+ confirmed txns" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#A1A1AA;fontSize=9;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="640" y="600" width="160" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="algod" value="Algod + Indexer&#xa;algonode.cloud" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#71717A;fontSize=8;" vertex="1" parent="1">
+          <mxGeometry x="830" y="600" width="80" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Audit -->
+        <mxCell id="audit" value="Audit Logger&#xa;(append-only JSONL)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#A1A1AA;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="560" y="560" width="140" height="35" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows -->
+        <mxCell id="a1" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#3F3F46;fontColor=#71717A;fontSize=8;" edge="1" parent="1" source="api-client" target="consent-api">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a2" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#3F3F46;fontColor=#71717A;fontSize=8;" edge="1" parent="1" source="agent-api" target="workflow">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a3" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#3F3F46;fontColor=#71717A;fontSize=8;" edge="1" parent="1" source="consent-api" target="contract">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a4" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#3F3F46;fontColor=#71717A;fontSize=8;" edge="1" parent="1" source="tool2" target="signer">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="a5" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#3F3F46;fontColor=#71717A;fontSize=8;" edge="1" parent="1" source="consent-api" target="digilocker">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Consent Flow" id="consent-flow">
+    <mxGraphModel dx="1000" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="cf-title" value="Consent-Gated Agent Execution Flow" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#FAFAFA;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="400" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Steps -->
+        <mxCell id="step1" value="1. User submits&#xa;identity claim" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="step2" value="2. DigiLocker&#xa;attestation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="220" y="80" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="step3" value="3. AlgoPlonk&#xa;ZK proof" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="400" y="80" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="step4" value="4. On-chain consent&#xa;Box Storage write" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="580" y="80" width="140" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="step5" value="5. Consent token&#xa;issued to client" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="760" y="80" width="140" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows between steps -->
+        <mxCell id="sa1" style="strokeColor=#3F3F46;" edge="1" parent="1" source="step1" target="step2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sa2" style="strokeColor=#3F3F46;" edge="1" parent="1" source="step2" target="step3"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sa3" style="strokeColor=#3F3F46;" edge="1" parent="1" source="step3" target="step4"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="sa4" style="strokeColor=#3F3F46;" edge="1" parent="1" source="step4" target="step5"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Agent execution with consent -->
+        <mxCell id="agent-start" value="6. Agent receives&#xa;task + consent token" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="160" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="compliance" value="7. verify_shunyak_compliance&#xa;Box Storage lookup" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="250" y="220" width="180" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Branch -->
+        <mxCell id="decision" value="Consent&#xa;valid?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="500" y="210" width="100" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="blocked" value="BLOCKED&#xa;WorkflowPolicy denies&#xa;settlement tool" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#EF4444;fontColor=#EF4444;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="470" y="340" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="settlement" value="8. execute_algo_settlement&#xa;CredentialVault injects key" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="660" y="220" width="180" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="txn" value="9. ALGO payment&#xa;broadcast on TestNet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#18181B;strokeColor=#27272A;fontColor=#FAFAFA;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="890" y="220" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="audit-step" value="10. Audit log&#xa;(append-only JSONL)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#09090B;strokeColor=#3F3F46;fontColor=#71717A;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="890" y="340" width="160" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows -->
+        <mxCell id="ea1" style="strokeColor=#3F3F46;" edge="1" parent="1" source="agent-start" target="compliance"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ea2" style="strokeColor=#3F3F46;" edge="1" parent="1" source="compliance" target="decision"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ea3" value="No" style="strokeColor=#EF4444;fontColor=#EF4444;fontSize=9;" edge="1" parent="1" source="decision" target="blocked"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ea4" value="Yes" style="strokeColor=#22C55E;fontColor=#22C55E;fontSize=9;" edge="1" parent="1" source="decision" target="settlement"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ea5" style="strokeColor=#3F3F46;" edge="1" parent="1" source="settlement" target="txn"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ea6" style="strokeColor=#3F3F46;dashed=1;" edge="1" parent="1" source="txn" target="audit-step"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

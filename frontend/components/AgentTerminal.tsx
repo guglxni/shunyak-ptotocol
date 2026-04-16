@@ -19,13 +19,9 @@ type AgentTerminalProps = {
 };
 
 function eventColor(kind: AgentEvent["kind"]): string {
-  if (kind === "success") {
-    return "text-moss";
-  }
-  if (kind === "error") {
-    return "text-red-300";
-  }
-  return "text-fog";
+  if (kind === "success") return "text-success";
+  if (kind === "error") return "text-error";
+  return "text-text-secondary";
 }
 
 export function AgentTerminal({
@@ -53,9 +49,7 @@ export function AgentTerminal({
   );
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
+    if (typeof window === "undefined") return;
 
     const storageKey = `shunyak:consent:${userPubkey}:${enterprisePubkey}`;
     const token = window.localStorage.getItem(storageKey) ?? "";
@@ -112,9 +106,7 @@ export function AgentTerminal({
           openAgentEventStream(
             payload,
             (envelope) => {
-              if (completed) {
-                return;
-              }
+              if (completed) return;
 
               if (envelope.type === "event") {
                 setStreamEvents((previous) => [...previous, envelope.event]);
@@ -176,91 +168,86 @@ export function AgentTerminal({
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-      <form className="panel p-6" onSubmit={onSubmit}>
+      <form className="card p-6" onSubmit={onSubmit}>
         <p className="kicker">Agent Execution</p>
-        <h2 className="mt-2 text-2xl font-semibold">{title}</h2>
+        <h2 className="mt-2 text-xl font-semibold">{title}</h2>
 
-        <label className="mt-5 block text-sm text-fog">
+        <label className="mt-5 block text-xs text-text-muted">
           Prompt
           <textarea
-            className="mt-1 min-h-24 w-full rounded-xl border border-white/20 bg-black/25 p-3 text-paper outline-none ring-ocean/40 focus:ring"
+            className="input-field mono mt-1.5"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             required
           />
         </label>
 
-        <label className="mt-4 block text-sm text-fog">
+        <label className="mt-4 block text-xs text-text-muted">
           User Public Key (hex)
           <input
-            className="mono mt-1 w-full rounded-xl border border-white/20 bg-black/25 p-3 text-paper outline-none ring-ocean/40 focus:ring"
+            className="input-field mono mt-1.5"
             value={userPubkey}
             onChange={(e) => setUserPubkey(e.target.value)}
             required
           />
         </label>
 
-        <label className="mt-4 block text-sm text-fog">
+        <label className="mt-4 block text-xs text-text-muted">
           Enterprise Public Key (hex)
           <input
-            className="mono mt-1 w-full rounded-xl border border-white/20 bg-black/25 p-3 text-paper outline-none ring-ocean/40 focus:ring"
+            className="input-field mono mt-1.5"
             value={enterprisePubkey}
             onChange={(e) => setEnterprisePubkey(e.target.value)}
             required
           />
         </label>
 
-        <label className="mt-4 block text-sm text-fog">
+        <label className="mt-4 block text-xs text-text-muted">
           Operator Token
           <input
-            className="mono mt-1 w-full rounded-xl border border-white/20 bg-black/25 p-3 text-paper outline-none ring-ocean/40 focus:ring"
+            className="input-field mono mt-1.5"
             value={operatorToken}
             onChange={(e) => setOperatorToken(e.target.value)}
-            placeholder="required in hardened/deployed mode"
+            placeholder="required in hardened mode"
           />
         </label>
 
-        <label className="mt-4 block text-sm text-fog">
-          Consent Token (optional override)
+        <label className="mt-4 block text-xs text-text-muted">
+          Consent Token (override)
           <textarea
-            className="mono mt-1 min-h-20 w-full rounded-xl border border-white/20 bg-black/25 p-3 text-paper outline-none ring-ocean/40 focus:ring"
+            className="input-field mono mt-1.5 min-h-16"
             value={consentToken}
             onChange={(e) => setConsentToken(e.target.value)}
             placeholder="paste a valid consent token to force authorized path"
           />
         </label>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-6 inline-flex items-center rounded-xl border border-ocean/40 bg-ocean/10 px-5 py-3 font-medium text-ocean disabled:opacity-50"
-        >
+        <button type="submit" disabled={loading} className="btn-primary mt-6">
           {loading ? "Executing..." : "Execute Agent"}
         </button>
 
-        <p className="mono mt-3 text-xs text-fog">
-          consent token: {consentToken ? "present" : "missing"}
-        </p>
-        <p className="mono mt-1 text-xs text-fog">
-          operator token: {operatorToken ? "present" : "missing"}
-        </p>
+        <div className="mono mt-3 space-y-0.5 text-xs text-text-muted">
+          <p>consent token: {consentToken ? "present" : "missing"}</p>
+          <p>operator token: {operatorToken ? "present" : "missing"}</p>
+        </div>
 
         {result ? (
-          <p className="mt-4 text-sm text-paper">
-            Outcome: <span className="mono text-ember">{result.outcome_message}</span>
-          </p>
+          <div className="mt-4 rounded-lg border border-border-subtle bg-bg p-3">
+            <p className="text-xs text-text-muted">Outcome</p>
+            <p className="mono mt-1 text-sm text-text">{result.outcome_message}</p>
+          </div>
         ) : null}
 
-        {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
+        {error ? <p className="mt-4 text-sm text-error">{error}</p> : null}
       </form>
 
       <div className="space-y-4">
-        <div className="panel p-6">
-          <p className="kicker">Live Agent Output</p>
-          <ul className="mono mt-3 space-y-2 text-sm">
+        <div className="card p-5">
+          <p className="kicker">Agent Output</p>
+          <ul className="mono mt-3 space-y-1.5 text-xs">
             {events.map((eventItem, index) => (
               <li key={`${eventItem.phase}-${index}`} className={eventColor(eventItem.kind)}>
-                [{eventItem.phase}] {eventItem.message}
+                <span className="text-text-muted">[{eventItem.phase}]</span> {eventItem.message}
               </li>
             ))}
           </ul>
@@ -273,20 +260,18 @@ export function AgentTerminal({
               explorerUrl={result.settlement.explorer_url}
               confirmedRound={result.settlement.confirmed_round}
             />
-            <div className="panel p-4">
+            <div className="card p-4">
               <p className="kicker">Settlement Details</p>
-              <p className="mono mt-2 text-xs text-fog">mode: {result.settlement.mode ?? "unknown"}</p>
-              <p className="mono mt-2 break-all text-xs text-fog">
-                receiver: {result.settlement.receiver ?? "not provided"}
-              </p>
-              {typeof result.settlement.asset_id === "number" ? (
-                <p className="mono mt-2 text-xs text-fog">asset_id: {result.settlement.asset_id}</p>
-              ) : null}
-              {result.settlement.fallback_reason ? (
-                <p className="mono mt-2 text-xs text-amber-200">
-                  fallback_reason: {result.settlement.fallback_reason}
-                </p>
-              ) : null}
+              <div className="mono mt-2 space-y-1 text-xs text-text-secondary">
+                <p>mode: {result.settlement.mode ?? "unknown"}</p>
+                <p className="break-all">receiver: {result.settlement.receiver ?? "not provided"}</p>
+                {typeof result.settlement.asset_id === "number" ? (
+                  <p>asset_id: {result.settlement.asset_id}</p>
+                ) : null}
+                {result.settlement.fallback_reason ? (
+                  <p className="text-warning">fallback_reason: {result.settlement.fallback_reason}</p>
+                ) : null}
+              </div>
             </div>
           </div>
         ) : null}

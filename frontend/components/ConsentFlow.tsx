@@ -117,24 +117,24 @@ export function ConsentFlow() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-      <form className="panel p-6" onSubmit={onSubmit}>
+      <form className="card p-6" onSubmit={onSubmit}>
         <p className="kicker">Consent Registration</p>
-        <h2 className="mt-2 text-2xl font-semibold">Generate proof and commit consent state</h2>
+        <h2 className="mt-2 text-xl font-semibold">Generate proof and commit consent state</h2>
 
-        <label className="mt-5 block text-sm text-fog">
+        <label className="mt-5 block text-xs text-text-muted">
           User ID
           <input
-            className="mt-1 w-full rounded-xl border border-white/20 bg-black/25 p-3 text-paper outline-none ring-moss/40 focus:ring"
+            className="input-field mt-1.5"
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
             required
           />
         </label>
 
-        <label className="mt-4 block text-sm text-fog">
+        <label className="mt-4 block text-xs text-text-muted">
           Claim Type
           <select
-            className="mt-1 w-full rounded-xl border border-white/20 bg-black/25 p-3 text-paper outline-none ring-moss/40 focus:ring"
+            className="input-field mt-1.5"
             value={claimType}
             onChange={(e) => setClaimType(e.target.value as ClaimType)}
           >
@@ -143,48 +143,40 @@ export function ConsentFlow() {
           </select>
         </label>
 
-        <label className="mt-4 block text-sm text-fog">
-          Identity Provider (fixed)
-          <input
-            className="mono mt-1 w-full rounded-xl border border-white/20 bg-black/25 p-3 text-paper outline-none"
-            value={identityProvider}
-            readOnly
-          />
+        <label className="mt-4 block text-xs text-text-muted">
+          Identity Provider
+          <input className="input-field mono mt-1.5" value={identityProvider} readOnly />
         </label>
 
-        <label className="mt-4 block text-sm text-fog">
-          DigiLocker Request ID (optional on first submit)
+        <label className="mt-4 block text-xs text-text-muted">
+          DigiLocker Request ID
           <input
-            className="mono mt-1 w-full rounded-xl border border-white/20 bg-black/25 p-3 text-paper outline-none ring-moss/40 focus:ring"
+            className="input-field mono mt-1.5"
             value={digilockerRequestId}
             onChange={(e) => setDigilockerRequestId(e.target.value)}
             placeholder="dg-req-..."
           />
         </label>
 
-        <label className="mt-4 block text-sm text-fog">
+        <label className="mt-4 block text-xs text-text-muted">
           DigiLocker Redirect URL
           <input
-            className="mt-1 w-full rounded-xl border border-white/20 bg-black/25 p-3 text-paper outline-none ring-moss/40 focus:ring"
+            className="input-field mt-1.5"
             value={digilockerRedirectUrl}
             onChange={(e) => setDigilockerRedirectUrl(e.target.value)}
             placeholder="https://setu.co"
           />
         </label>
 
-        <label className="mt-4 block text-sm text-fog">
-          zk Backend (fixed)
-          <input
-            className="mono mt-1 w-full rounded-xl border border-white/20 bg-black/25 p-3 text-paper outline-none"
-            value={zkBackend}
-            readOnly
-          />
+        <label className="mt-4 block text-xs text-text-muted">
+          zk Backend
+          <input className="input-field mono mt-1.5" value={zkBackend} readOnly />
         </label>
 
-        <label className="mt-4 block text-sm text-fog">
+        <label className="mt-4 block text-xs text-text-muted">
           AlgoPlonk Proof Hex
           <textarea
-            className="mono mt-1 min-h-24 w-full rounded-xl border border-white/20 bg-black/25 p-3 text-paper outline-none ring-moss/40 focus:ring"
+            className="input-field mono mt-1.5"
             value={algoplonkProofHex}
             onChange={(e) => setAlgoplonkProofHex(e.target.value)}
             placeholder="0x..."
@@ -192,10 +184,10 @@ export function ConsentFlow() {
           />
         </label>
 
-        <label className="mt-4 block text-sm text-fog">
+        <label className="mt-4 block text-xs text-text-muted">
           AlgoPlonk Public Inputs Hex
           <textarea
-            className="mono mt-1 min-h-20 w-full rounded-xl border border-white/20 bg-black/25 p-3 text-paper outline-none ring-moss/40 focus:ring"
+            className="input-field mono mt-1.5 min-h-16"
             value={algoplonkPublicInputsHex}
             onChange={(e) => setAlgoplonkPublicInputsHex(e.target.value)}
             placeholder="0x... (bytes32[] flattened)"
@@ -203,10 +195,10 @@ export function ConsentFlow() {
           />
         </label>
 
-        <label className="mt-4 block text-sm text-fog">
+        <label className="mt-4 block text-xs text-text-muted">
           Enterprise Public Key (hex)
           <input
-            className="mono mt-1 w-full rounded-xl border border-white/20 bg-black/25 p-3 text-paper outline-none ring-moss/40 focus:ring"
+            className="input-field mono mt-1.5"
             value={enterprisePubkey}
             onChange={(e) => setEnterprisePubkey(e.target.value)}
             minLength={64}
@@ -215,26 +207,22 @@ export function ConsentFlow() {
           />
         </label>
 
-        <div className="panel mt-5 rounded-xl p-3">
-          <p className="kicker">Derived User Public Key</p>
-          <p className="mono mt-1 break-all text-xs text-fog">{derivedUserPubKey}</p>
+        <div className="mt-5 rounded-lg border border-border-subtle bg-bg p-3">
+          <p className="text-xs text-text-muted">Derived User Public Key</p>
+          <p className="mono mt-1 break-all text-xs text-text-secondary">{derivedUserPubKey}</p>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-6 inline-flex items-center rounded-xl border border-moss/40 bg-moss/10 px-5 py-3 font-medium text-moss disabled:opacity-50"
-        >
-          {loading ? "Registering..." : "Authorize DigiLocker and Register On-chain Consent"}
+        <button type="submit" disabled={loading} className="btn-primary mt-6">
+          {loading ? "Registering..." : "Register Consent"}
         </button>
 
-        {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
+        {error ? <p className="mt-4 text-sm text-error">{error}</p> : null}
       </form>
 
       <div className="space-y-4">
-        <div className="panel p-6">
-          <p className="kicker">Live Output</p>
-          <ul className="mono mt-3 space-y-2 text-sm text-fog">
+        <div className="card p-5">
+          <p className="kicker">Pipeline</p>
+          <ul className="mono mt-3 space-y-1.5 text-xs text-text-secondary">
             {(result?.steps ?? [
               "Awaiting submission",
               "identity provider attestation",
@@ -242,7 +230,10 @@ export function ConsentFlow() {
               "proof generation",
               "Algorand testnet transaction"
             ]).map((step) => (
-              <li key={step}>- {step}</li>
+              <li key={step} className="flex items-start gap-2">
+                <span className="text-text-muted">&bull;</span>
+                {step}
+              </li>
             ))}
           </ul>
         </div>
@@ -254,12 +245,12 @@ export function ConsentFlow() {
             ) : null}
 
             {result.status === "pending_digilocker_consent" ? (
-              <div className="panel p-4">
+              <div className="card p-4">
                 <p className="kicker">DigiLocker Pending</p>
-                <p className="mono mt-2 text-xs text-fog">
+                <p className="mono mt-2 text-xs text-text-secondary">
                   request_id: {result.digilocker?.request_id ?? "not available"}
                 </p>
-                <p className="mono mt-2 text-xs text-fog">
+                <p className="mono mt-1 text-xs text-text-muted">
                   status: {result.digilocker?.status ?? "PENDING"}
                 </p>
                 {result.digilocker?.auth_url ? (
@@ -267,86 +258,74 @@ export function ConsentFlow() {
                     href={result.digilocker.auth_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="mono mt-3 inline-block text-xs text-ocean underline"
+                    className="mono mt-3 inline-block text-xs text-text-secondary underline underline-offset-2"
                   >
-                    Open DigiLocker authorization URL
+                    Open DigiLocker authorization &rarr;
                   </a>
                 ) : null}
               </div>
             ) : null}
 
-            <div className="panel p-4">
+            <div className="card p-4">
               <p className="kicker">Execution Mode</p>
-              <p className="mono mt-2 text-xs text-fog">status: {result.status ?? "unknown"}</p>
-              <p className="mono mt-2 text-xs text-fog">
-                identity_provider: {result.identity_provider ?? "unknown"}
-              </p>
-              <p className="mono mt-2 text-xs text-fog">zk_backend: {result.zk_backend ?? "unknown"}</p>
-              <p className="mono mt-2 text-xs text-fog">
-                zk_verification_mode: {result.zk_verification_mode ?? "unknown"}
-              </p>
-              <p className="mono mt-2 text-xs text-fog">tx_mode: {result.tx_mode ?? "unknown"}</p>
-              <p className="mono mt-2 text-xs text-fog">
-                consent_source: {result.consent_source ?? "unknown"}
-              </p>
-              {result.digilocker?.scope?.length ? (
-                <p className="mono mt-2 break-all text-xs text-fog">
-                  digilocker_scope: {result.digilocker.scope.join(",")}
-                </p>
-              ) : null}
-              {result.digilocker?.aadhaar_masked_number ? (
-                <p className="mono mt-2 text-xs text-fog">
-                  aadhaar_masked_number: {result.digilocker.aadhaar_masked_number}
-                </p>
-              ) : null}
-              {result.aadhaar?.trace_id ? (
-                <p className="mono mt-2 break-all text-xs text-fog">
-                  aadhaar_trace_id: {result.aadhaar.trace_id}
-                </p>
-              ) : null}
-              {typeof result.algoplonk?.proof_chunk_count === "number" ? (
-                <p className="mono mt-2 text-xs text-fog">
-                  algoplonk_chunks: {result.algoplonk.proof_chunk_count}
-                </p>
-              ) : null}
-              {result.algoplonk?.onchain_error ? (
-                <p className="mono mt-2 text-xs text-amber-200">
-                  algoplonk_onchain_error: {result.algoplonk.onchain_error}
-                </p>
-              ) : null}
-              {result.fallback_reason ? (
-                <p className="mono mt-2 text-xs text-amber-200">fallback_reason: {result.fallback_reason}</p>
-              ) : null}
+              <div className="mono mt-2 space-y-1 text-xs text-text-secondary">
+                <p>status: {result.status ?? "unknown"}</p>
+                <p>identity_provider: {result.identity_provider ?? "unknown"}</p>
+                <p>zk_backend: {result.zk_backend ?? "unknown"}</p>
+                <p>zk_verification_mode: {result.zk_verification_mode ?? "unknown"}</p>
+                <p>tx_mode: {result.tx_mode ?? "unknown"}</p>
+                <p>consent_source: {result.consent_source ?? "unknown"}</p>
+                {result.digilocker?.scope?.length ? (
+                  <p className="break-all">digilocker_scope: {result.digilocker.scope.join(",")}</p>
+                ) : null}
+                {result.digilocker?.aadhaar_masked_number ? (
+                  <p>aadhaar_masked: {result.digilocker.aadhaar_masked_number}</p>
+                ) : null}
+                {result.aadhaar?.trace_id ? (
+                  <p className="break-all">aadhaar_trace_id: {result.aadhaar.trace_id}</p>
+                ) : null}
+                {typeof result.algoplonk?.proof_chunk_count === "number" ? (
+                  <p>algoplonk_chunks: {result.algoplonk.proof_chunk_count}</p>
+                ) : null}
+                {result.algoplonk?.onchain_error ? (
+                  <p className="text-warning">algoplonk_onchain_error: {result.algoplonk.onchain_error}</p>
+                ) : null}
+                {result.fallback_reason ? (
+                  <p className="text-warning">fallback_reason: {result.fallback_reason}</p>
+                ) : null}
+              </div>
             </div>
 
             {result.status === "consent_registered" && result.user_pubkey && result.enterprise_pubkey ? (
-              <div className="panel p-4">
-                <p className="kicker">Consent Revocation</p>
-                <p className="mt-2 text-sm text-fog">
-                  Trigger on-chain revoke to prove revocability in the demo lifecycle.
+              <div className="card p-4">
+                <p className="kicker">Revocation</p>
+                <p className="mt-2 text-xs text-text-muted">
+                  Revoke consent to demonstrate full lifecycle on-chain.
                 </p>
                 <button
                   type="button"
                   disabled={revokeLoading}
                   onClick={onRevokeConsent}
-                  className="mt-4 inline-flex items-center rounded-xl border border-ember/40 bg-ember/10 px-4 py-2 text-sm font-medium text-ember disabled:opacity-50"
+                  className="btn-danger mt-3"
                 >
-                  {revokeLoading ? "Revoking..." : "Revoke Consent On-chain"}
+                  {revokeLoading ? "Revoking..." : "Revoke Consent"}
                 </button>
                 {revokeResult?.txid ? (
-                  <p className="mono mt-3 break-all text-xs text-fog">revoke_txid: {revokeResult.txid}</p>
+                  <p className="mono mt-3 break-all text-xs text-text-secondary">
+                    revoke_txid: {revokeResult.txid}
+                  </p>
                 ) : null}
                 {revokeResult?.box_status ? (
-                  <p className="mono mt-2 text-xs text-fog">box_status: {revokeResult.box_status}</p>
+                  <p className="mono mt-1 text-xs text-text-muted">box_status: {revokeResult.box_status}</p>
                 ) : null}
-                {revokeError ? <p className="mt-3 text-sm text-red-300">{revokeError}</p> : null}
+                {revokeError ? <p className="mt-3 text-sm text-error">{revokeError}</p> : null}
               </div>
             ) : null}
           </div>
         ) : (
-          <div className="panel p-4">
+          <div className="card p-4">
             <p className="kicker">Awaiting Transaction</p>
-            <p className="mt-2 text-sm text-fog">Submit a consent registration to generate testnet output.</p>
+            <p className="mt-2 text-xs text-text-muted">Submit a consent registration to generate output.</p>
           </div>
         )}
       </div>

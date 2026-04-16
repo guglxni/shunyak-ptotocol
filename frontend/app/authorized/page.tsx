@@ -4,14 +4,15 @@ import { AgentTerminal } from "../../components/AgentTerminal";
 export default function AuthorizedPage() {
   return (
     <main>
-      <header className="mb-6">
-        <Link href="/" className="mono text-sm text-fog underline">
-          Back to demo menu
+      <header className="mb-8">
+        <Link href="/" className="mono text-xs text-text-muted hover:text-text transition-colors">
+          &larr; Back
         </Link>
-        <p className="kicker mt-4">Screen 3</p>
-        <h1 className="screen-title">Authorized settlement path</h1>
-        <p className="mt-2 text-sm text-fog">
-          Use the same user registered in Screen 1 to see successful authorization.
+        <span className="kicker mt-4 block">Screen 03</span>
+        <h1 className="screen-title">Authorized Settlement</h1>
+        <p className="mt-2 text-sm text-text-secondary" style={{ fontWeight: 300 }}>
+          Same task with active consent. Agent verifies compliance on-chain, then executes
+          real ALGO settlement on TestNet.
         </p>
       </header>
 

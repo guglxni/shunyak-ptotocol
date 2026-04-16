@@ -1,30 +1,28 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
+import { Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const grotesk = Space_Grotesk({
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-space-grotesk"
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-bricolage"
 });
 
-const plexMono = IBM_Plex_Mono({
+const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
-  variable: "--font-ibm-plex-mono"
+  variable: "--font-jetbrains"
 });
 
 export const metadata: Metadata = {
-  title: "Shunyak Protocol Demo",
-  description: "Consent-gated agent execution demo on Algorand testnet"
+  title: "Shunyak Protocol",
+  description: "DPDP-native consent governance for autonomous agents on Algorand"
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${grotesk.variable} ${plexMono.variable}`}>
-      <body>
-        <div className="grid-background" />
-        {children}
-      </body>
+    <html lang="en" className={`${bricolage.variable} ${jetbrains.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }
