@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shunyak Protocol System Context</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'JetBrains Mono', monospace; background: #020617; min-height: 100vh; padding: 2rem; color: white; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header { margin-bottom: 2rem; }
+    .header-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+    .pulse-dot { width: 12px; height: 12px; background: #22d3ee; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; }
+    .subtitle { color: #94a3b8; font-size: 0.875rem; margin-left: 1.75rem; }
+    .diagram-container { background: rgba(15, 23, 42, 0.5); border-radius: 1rem; border: 1px solid #1e293b; padding: 1.5rem; overflow-x: auto; }
+    svg { width: 100%; min-width: 1000px; display: block; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 2rem; }
+    .card { background: rgba(15, 23, 42, 0.5); border-radius: 0.75rem; border: 1px solid #1e293b; padding: 1.25rem; }
+    .card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .card-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .card-dot.cyan { background: #22d3ee; } .card-dot.emerald { background: #34d399; } .card-dot.violet { background: #a78bfa; }
+    .card h3 { font-size: 0.875rem; font-weight: 600; }
+    .card ul { list-style: none; color: #94a3b8; font-size: 0.75rem; }
+    .card li { margin-bottom: 0.375rem; }
+    .footer { text-align: center; margin-top: 1.5rem; color: #475569; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-row">
+        <div class="pulse-dot"></div>
+        <h1>Shunyak Protocol Architecture</h1>
+      </div>
+      <p class="subtitle">System context generated from Cocoon architecture template</p>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1100 620">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <rect x="20" y="60" width="180" height="520" rx="10" fill="rgba(30, 41, 59, 0.25)" stroke="#94a3b8" stroke-width="1" stroke-dasharray="6,4"/>
+        <text x="32" y="78" fill="#94a3b8" font-size="10" font-weight="600">Client</text>
+
+        <rect x="220" y="60" width="520" height="520" rx="10" fill="rgba(8, 51, 68, 0.12)" stroke="#22d3ee" stroke-width="1" stroke-dasharray="6,4"/>
+        <text x="232" y="78" fill="#22d3ee" font-size="10" font-weight="600">Vercel Runtime</text>
+
+        <rect x="760" y="60" width="320" height="520" rx="10" fill="rgba(120, 53, 15, 0.12)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="6,4"/>
+        <text x="772" y="78" fill="#fbbf24" font-size="10" font-weight="600">External Systems</text>
+
+        <rect x="50" y="180" width="120" height="56" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="110" y="202" fill="white" font-size="11" font-weight="600" text-anchor="middle">End User</text>
+        <text x="110" y="218" fill="#94a3b8" font-size="9" text-anchor="middle">Browser</text>
+
+        <rect x="50" y="300" width="120" height="56" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="110" y="322" fill="white" font-size="11" font-weight="600" text-anchor="middle">Operator</text>
+        <text x="110" y="338" fill="#94a3b8" font-size="9" text-anchor="middle">Enterprise</text>
+
+        <rect x="280" y="236" width="150" height="68" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="355" y="260" fill="white" font-size="11" font-weight="600" text-anchor="middle">Next.js Frontend</text>
+        <text x="355" y="278" fill="#94a3b8" font-size="9" text-anchor="middle">/consent /blocked</text>
+        <text x="355" y="292" fill="#94a3b8" font-size="9" text-anchor="middle">/authorized /showcase</text>
+
+        <rect x="500" y="236" width="160" height="68" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="580" y="260" fill="white" font-size="11" font-weight="600" text-anchor="middle">Python APIs</text>
+        <text x="580" y="278" fill="#94a3b8" font-size="9" text-anchor="middle">consent / agent / audit</text>
+        <text x="580" y="292" fill="#94a3b8" font-size="9" text-anchor="middle">serverless endpoints</text>
+
+        <rect x="500" y="360" width="160" height="68" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="580" y="384" fill="white" font-size="11" font-weight="600" text-anchor="middle">Dolios Runtime</text>
+        <text x="580" y="402" fill="#94a3b8" font-size="9" text-anchor="middle">workflow + DLP + audit</text>
+        <text x="580" y="416" fill="#94a3b8" font-size="9" text-anchor="middle">credential boundaries</text>
+
+        <rect x="810" y="130" width="220" height="66" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="920" y="154" fill="white" font-size="11" font-weight="600" text-anchor="middle">Setu DigiLocker</text>
+        <text x="920" y="172" fill="#94a3b8" font-size="9" text-anchor="middle">identity-consent status</text>
+
+        <rect x="810" y="246" width="220" height="66" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="920" y="270" fill="white" font-size="11" font-weight="600" text-anchor="middle">Algod + Indexer</text>
+        <text x="920" y="288" fill="#94a3b8" font-size="9" text-anchor="middle">TestNet RPC access</text>
+
+        <rect x="810" y="362" width="220" height="66" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="920" y="386" fill="white" font-size="11" font-weight="600" text-anchor="middle">Consent App 758909516</text>
+        <text x="920" y="404" fill="#94a3b8" font-size="9" text-anchor="middle">box storage + status checks</text>
+
+        <line x1="170" y1="208" x2="278" y2="258" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="170" y1="328" x2="278" y2="282" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="430" y1="270" x2="498" y2="270" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="580" y1="304" x2="580" y2="358" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="660" y1="260" x2="808" y2="164" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="660" y1="274" x2="808" y2="274" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="660" y1="390" x2="808" y2="390" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <line x1="920" y1="312" x2="920" y2="360" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+        <text x="735" y="248" fill="#94a3b8" font-size="8">identity check</text>
+        <text x="735" y="266" fill="#94a3b8" font-size="8">RPC read/write</text>
+        <text x="742" y="382" fill="#94a3b8" font-size="8">consent verification</text>
+      </svg>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-header"><div class="card-dot cyan"></div><h3>Client and UX</h3></div>
+        <ul>
+          <li>- End users and operators use the same frontend.</li>
+          <li>- Demo routes expose consent and execution behavior.</li>
+          <li>- API calls are centralized through serverless endpoints.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot emerald"></div><h3>Runtime Controls</h3></div>
+        <ul>
+          <li>- Workflow policy enforces compliance-before-settlement.</li>
+          <li>- DLP and credential boundaries guard sensitive actions.</li>
+          <li>- Audit events provide deterministic execution traces.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot violet"></div><h3>On-Chain Authority</h3></div>
+        <ul>
+          <li>- Consent state is anchored in Algorand app boxes.</li>
+          <li>- Compliance checks read status directly from chain state.</li>
+          <li>- Settlement remains blocked unless consent is valid.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="footer">Shunyak Protocol - Cocoon-style architecture artifact</p>
+  </div>
+</body>
+</html>

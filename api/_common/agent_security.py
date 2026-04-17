@@ -17,6 +17,7 @@ from api._common.constants import (
     SHUNYAK_REQUIRE_EXECUTION_TOKEN,
     SHUNYAK_REQUIRE_OPERATOR_AUTH,
 )
+from api._common.token import validate_demo_operator_token
 
 
 @dataclass(frozen=True)
@@ -97,18 +98,43 @@ def guard_agent_execution_request(
 ) -> GuardResult:
     operator_token = _extract_operator_token(headers)
 
+    demo_operator_token_valid = False
+    if operator_token:
+        try:
+            demo_operator_token_valid = validate_demo_operator_token(
+                operator_token,
+                user_pubkey=user_pubkey,
+                enterprise_pubkey=enterprise_pubkey,
+                endpoint_name=endpoint_name,
+            )
+        except RuntimeError:
+            demo_operator_token_valid = False
+
+    static_operator_token_valid = bool(
+        SHUNYAK_OPERATOR_TOKEN
+        and operator_token
+        and hmac.compare_digest(operator_token, SHUNYAK_OPERATOR_TOKEN)
+    )
+
     if SHUNYAK_REQUIRE_OPERATOR_AUTH:
         if not SHUNYAK_OPERATOR_TOKEN:
+            if demo_operator_token_valid:
+                pass
+            else:
+                return GuardResult(
+                    ok=False,
+                    status=503,
+                    error="operator_auth_required_but_token_not_configured",
+                )
+        elif not (static_operator_token_valid or demo_operator_token_valid):
             return GuardResult(
                 ok=False,
-                status=503,
-                error="operator_auth_required_but_token_not_configured",
+                status=401,
+                error="unauthorized_operator",
             )
-        if not operator_token or not hmac.compare_digest(operator_token, SHUNYAK_OPERATOR_TOKEN):
-            return GuardResult(ok=False, status=401, error="unauthorized_operator")
     elif SHUNYAK_OPERATOR_TOKEN and operator_token:
         # If an operator token is supplied, it must still be correct.
-        if not hmac.compare_digest(operator_token, SHUNYAK_OPERATOR_TOKEN):
+        if not (static_operator_token_valid or demo_operator_token_valid):
             return GuardResult(ok=False, status=401, error="invalid_operator_token")
 
     if SHUNYAK_REQUIRE_EXECUTION_TOKEN and not (consent_token or "").strip():

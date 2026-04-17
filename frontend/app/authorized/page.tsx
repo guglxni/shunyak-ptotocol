@@ -17,6 +17,7 @@ export default function AuthorizedPage() {
       </header>
 
       <AgentTerminal
+        scenario="authorized"
         title="Process consented user and execute settlement"
         defaultPrompt="Process financial history for demo-user-001 and issue micro-loan"
         defaultUserPubkey="64656d6f2d757365722d30303100000000000000000000000000000000000000"

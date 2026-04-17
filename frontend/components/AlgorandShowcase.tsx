@@ -1,19 +1,36 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchAlgorandShowcase, type AlgorandShowcaseResponse } from "../lib/api";
+import {
+  fetchAlgorandShowcase,
+  fetchDemoContext,
+  type AlgorandShowcaseResponse,
+  type DemoContextResponse
+} from "../lib/api";
+import { liteLLMConfigSummary, loadLiteLLMConfigFromStorage } from "../lib/llm";
 
 export function AlgorandShowcase() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<AlgorandShowcaseResponse | null>(null);
+  const [demoContext, setDemoContext] = useState<DemoContextResponse | null>(null);
+  const [llmRouteSummary, setLlmRouteSummary] = useState("disabled");
 
   async function load() {
     setLoading(true);
     setError(null);
     try {
-      const payload = await fetchAlgorandShowcase();
-      setData(payload);
+      const runtimeLLMConfig =
+        typeof window !== "undefined" ? loadLiteLLMConfigFromStorage() : undefined;
+      const [showcasePayload, contextPayload] = await Promise.all([
+        fetchAlgorandShowcase(runtimeLLMConfig),
+        fetchDemoContext()
+      ]);
+      setData(showcasePayload);
+      setDemoContext(contextPayload);
+      if (runtimeLLMConfig) {
+        setLlmRouteSummary(liteLLMConfigSummary(runtimeLLMConfig));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch showcase data");
     } finally {
@@ -47,10 +64,30 @@ export function AlgorandShowcase() {
         <div className="card p-6">
           <p className="kicker">AlgoKit Runtime</p>
           <div className="mt-3 space-y-1">
+            {data?.algokit.runtime ? (
+              <p className="mono text-xs text-text-muted">runtime: {data.algokit.runtime}</p>
+            ) : null}
             <p className="mono text-sm text-text">
-              CLI: {data?.algokit.cli_available ? "available" : "not available"}
+              CLI: {(() => {
+                if (data?.algokit.cli_status === "not_applicable") {
+                  return "n/a in serverless runtime";
+                }
+                return data?.algokit.cli_available ? "available" : "not available";
+              })()}
             </p>
             <p className="mono text-xs text-text-muted">{data?.algokit.cli_version ?? "-"}</p>
+            {data?.algokit.cli_path ? (
+              <p className="mono text-xs text-text-muted">path: {data.algokit.cli_path}</p>
+            ) : null}
+            {data?.algokit.cli_reason ? (
+              <p
+                className={`mono text-xs break-all ${
+                  data.algokit.cli_status === "unavailable" ? "text-warning" : "text-text-muted"
+                }`}
+              >
+                note: {data.algokit.cli_reason}
+              </p>
+            ) : null}
             <p className="mono mt-2 text-sm text-text">
               algokit-utils: {data?.algokit.utils_available ? "installed" : "not installed"}
             </p>
@@ -124,6 +161,67 @@ export function AlgorandShowcase() {
               <span className="text-text-muted">zk onchain required</span>
               <span>{data?.zk_engine?.onchain_required ? "true" : "false"}</span>
             </div>
+            <div className="h-px bg-border-subtle my-1" />
+            <div className="flex justify-between">
+              <span className="text-text-muted">llm byok</span>
+              <span>{data?.llm_engine?.enabled ? "enabled" : "disabled"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-text-muted">llm selected route</span>
+              <span className="break-all text-right">{llmRouteSummary}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-text-muted">litellm sdk</span>
+              <span>
+                {data?.llm_engine?.litellm_installed
+                  ? data?.llm_engine?.litellm_version || "installed"
+                  : "not installed"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-text-muted">llm provider</span>
+              <span>{data?.llm_engine?.provider ?? "unknown"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-text-muted">llm model</span>
+              <span className="break-all text-right">{data?.llm_engine?.model ?? "unknown"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-text-muted">llm api key</span>
+              <span>{data?.llm_engine?.api_key_configured ? "configured" : "not set"}</span>
+            </div>
+            {data?.llm_engine?.error ? (
+              <p className="break-all text-warning">llm_error: {data.llm_engine.error}</p>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="card p-6">
+          <p className="kicker">Demo Route Context</p>
+          <div className="mono mt-3 space-y-1.5 text-xs text-text-secondary">
+            <div className="flex justify-between">
+              <span className="text-text-muted">operator auth required</span>
+              <span>{demoContext?.requirements.operator_auth_required ? "true" : "false"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-text-muted">execution token required</span>
+              <span>{demoContext?.requirements.execution_token_required ? "true" : "false"}</span>
+            </div>
+            <div className="h-px bg-border-subtle my-1" />
+            <div className="flex justify-between">
+              <span className="text-text-muted">blocked route ready</span>
+              <span>{demoContext?.blocked.ready ? "yes" : "no"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-text-muted">authorized route ready</span>
+              <span>{demoContext?.authorized.ready ? "yes" : "no"}</span>
+            </div>
+            {demoContext?.authorized.onchain_reason ? (
+              <p className="break-all text-text-muted">authorized_reason: {demoContext.authorized.onchain_reason}</p>
+            ) : null}
+            {demoContext?.token_warnings?.length ? (
+              <p className="break-all text-warning">token_warnings: {demoContext.token_warnings.join(" | ")}</p>
+            ) : null}
           </div>
         </div>
       </div>

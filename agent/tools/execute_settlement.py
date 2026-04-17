@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import hashlib
 import os
+import secrets
 import time
 from typing import Any
 
 from api._common.algorand import submit_asset_transfer_transaction, submit_payment_transaction
+from api._common.constants import SHUNYAK_CONSENT_REGISTRAR_MNEMONIC
 from api._common.constants import SHUNYAK_ENABLE_TESTNET_TX
 from api._common.constants import SHUNYAK_SETTLEMENT_ALLOW_MOCK_FALLBACK
 from api._common.constants import SHUNYAK_USDCA_ASA_ID
@@ -33,32 +35,40 @@ def execute_algo_settlement(
     if not recipient_address:
         raise ValueError("recipient_address is required")
 
-    secret_seed = ""
+    sender_mnemonic: str | None = None
     if vault is not None:
         if hasattr(vault, "has") and vault.has(vault_label):
-            secret_seed = vault.inject(vault_label)
+            sender_mnemonic = vault.inject(vault_label)
         elif hasattr(vault, "inject"):
             try:
-                secret_seed = vault.inject(vault_label)
+                sender_mnemonic = vault.inject(vault_label)
             except (KeyError, RuntimeError, ValueError, TypeError, OSError):
-                secret_seed = ""
+                sender_mnemonic = None
 
-    if not secret_seed:
-        secret_seed = os.getenv(vault_label, "")
+    if not sender_mnemonic:
+        env_sender_mnemonic = os.getenv(vault_label, "").strip()
+        if env_sender_mnemonic:
+            sender_mnemonic = env_sender_mnemonic
 
-    if not secret_seed:
+    # In warm serverless processes, vendor vault integration may consume
+    # SHUNYAK_AGENT_MNEMONIC from os.environ on earlier requests.
+    # Use resolved registrar fallback constant to keep settlement stable.
+    if not sender_mnemonic:
+        sender_mnemonic = SHUNYAK_CONSENT_REGISTRAR_MNEMONIC or None
+
+    use_mock_fallback = not sender_mnemonic
+
+    if use_mock_fallback:
         if not SHUNYAK_SETTLEMENT_ALLOW_MOCK_FALLBACK:
             raise RuntimeError(
                 "SHUNYAK_AGENT_MNEMONIC is missing and mock settlement fallback is disabled"
             )
-        # Deterministic mock fallback is only allowed in non-production demo mode.
-        secret_seed = "shunyak-demo-settlement-seed"
 
-    if SHUNYAK_ENABLE_TESTNET_TX and secret_seed != "shunyak-demo-settlement-seed":
+    if SHUNYAK_ENABLE_TESTNET_TX and not use_mock_fallback:
         try:
             if SHUNYAK_USDCA_ASA_ID > 0:
                 onchain = submit_asset_transfer_transaction(
-                    sender_mnemonic=secret_seed,
+                    sender_mnemonic=sender_mnemonic,
                     receiver=recipient_address,
                     amount_base_units=amount_microalgo,
                     asset_id=SHUNYAK_USDCA_ASA_ID,
@@ -74,7 +84,7 @@ def execute_algo_settlement(
                 }
 
             onchain = submit_payment_transaction(
-                sender_mnemonic=secret_seed,
+                sender_mnemonic=sender_mnemonic,
                 receiver=recipient_address,
                 amount_microalgo=amount_microalgo,
                 memo=memo,
@@ -99,7 +109,10 @@ def execute_algo_settlement(
             )
         fallback_reason = None
 
-    seed = f"{recipient_address}:{amount_microalgo}:{memo}:{secret_seed}:{time.time_ns()}"
+    seed = (
+        f"{recipient_address}:{amount_microalgo}:{memo}:"
+        f"{time.time_ns()}:{secrets.token_hex(16)}"
+    )
     txid = hashlib.sha256(seed.encode("utf-8")).hexdigest()[:52]
 
     return {

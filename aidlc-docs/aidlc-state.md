@@ -3,7 +3,7 @@
 ## Workflow Context
 - Mode: Brownfield bootstrap from PRD/SPEC only
 - Current Phase: construction
-- Last Updated: 2026-04-16T13:40:56Z
+- Last Updated: 2026-04-17T13:29:40Z
 
 ## Stage Status
 - Workspace Detection: completed
@@ -17,7 +17,7 @@
 - NFR Design (Unit: MVP foundation): completed
 - Infrastructure Design (Unit: MVP foundation): completed
 - Code Generation (Unit: MVP foundation): completed
-- Build and Test Instructions: pending manual execution in target environment
+- Build and Test Instructions: completed (local validation + security automation)
 
 ## Extension Configuration
 - No optional extensions explicitly enabled yet.
@@ -64,3 +64,8 @@
 - Added opt-in live on-chain integration test covering blocked -> consent -> authorized -> revoke with on-chain assertions.
 - Implemented security-audit remediation pass: fixed consent status compile bug and register NameError, added operator-auth and rate/spend guards for execute/stream APIs, migrated SSE to POST-issued stream tickets, tightened CORS with deployed fail-closed allowlist behavior, hardened token-secret fallback policy, registrar-gated contract writes with on-chain attestation verification, and upgraded frontend Next.js dependency to a patched release.
 - Follow-up closure pass completed: replaced broad exception catches in Algorand and agent runtime with typed error taxonomy (`Algorand*Error`, `MCPToolExecutionError`, `AgentRuntimeFailure`), added endpoint guard test suite (`tests/integration/test_agent_execution_guards.py`), and revalidated full scoped tests (`8 passed, 1 skipped`).
+- Executed remediation checklist from internal security worklog: redacted credential-like value from audit history, removed hardcoded fallback secret literals, hardened stream error handling and CLI subprocess execution, and switched runtime temp-path defaults to safer dynamic resolution.
+- Added professional security automation (`scripts/run-security-scans.sh`) with isolated scan environment plus new CI workflow (`.github/workflows/security.yml`) for repeatable Bandit, pip-audit, npm audit, detect-secrets, and Semgrep scans.
+- Added professional documentation enhancements: `docs/well-architected-checklist.md`, `docs/diagrams/README.md`, and updated docs index/README references.
+- Validated all Mermaid diagrams in README/docs via renderer (all blocks parsed successfully with text alternatives present).
+- Revalidated project health: `pytest -c pytest.ini -q` -> `24 passed, 1 skipped`, frontend `npm run build` succeeded, and latest security suite reports zero Bandit findings, zero tracked secret leaks, zero Semgrep OWASP/secret findings, and zero pip-audit vulnerabilities.

@@ -1,8 +1,9 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { AlgorandTx } from "./AlgorandTx";
 import {
+  fetchDemoContext,
   registerConsent,
   revokeConsent,
   type ConsentRegisterResponse,
@@ -12,6 +13,18 @@ import {
 type ClaimType = "age_over_18" | "indian_citizen";
 type IdentityProvider = "digilocker";
 type ZkBackend = "algoplonk";
+
+type PendingDigiLockerState = {
+  user_id?: string;
+  claim_type?: ClaimType;
+  enterprise_pubkey?: string;
+  digilocker_request_id?: string;
+  digilocker_redirect_url?: string;
+};
+
+const PENDING_DIGILOCKER_STORAGE_KEY = "shunyak:digilocker-pending";
+const DEFAULT_DIGILOCKER_REDIRECT_URL = "https://shunyak-protocol.vercel.app/consent";
+const DEFAULT_ENTERPRISE_PUBKEY = "7368756e79616b2d656e74657270726973650000000000000000000000000000";
 
 function toHex(input: string): string {
   const bytes = new TextEncoder().encode(input);
@@ -27,11 +40,15 @@ export function ConsentFlow() {
   const [claimType, setClaimType] = useState<ClaimType>("age_over_18");
   const [identityProvider] = useState<IdentityProvider>("digilocker");
   const [zkBackend] = useState<ZkBackend>("algoplonk");
-  const [enterprisePubkey, setEnterprisePubkey] = useState("7368756e79616b2d656e74657270726973650000000000000000000000000000");
+  const [enterprisePubkey, setEnterprisePubkey] = useState(DEFAULT_ENTERPRISE_PUBKEY);
   const [digilockerRequestId, setDigilockerRequestId] = useState("");
-  const [digilockerRedirectUrl, setDigilockerRedirectUrl] = useState("https://setu.co");
+  const [digilockerRedirectUrl, setDigilockerRedirectUrl] = useState(DEFAULT_DIGILOCKER_REDIRECT_URL);
   const [algoplonkProofHex, setAlgoplonkProofHex] = useState("");
   const [algoplonkPublicInputsHex, setAlgoplonkPublicInputsHex] = useState("");
+  const [showAdvancedInputs, setShowAdvancedInputs] = useState(false);
+  const [contextLoading, setContextLoading] = useState(true);
+  const [contextError, setContextError] = useState<string | null>(null);
+  const [contextWarnings, setContextWarnings] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ConsentRegisterResponse | null>(null);
@@ -41,8 +58,64 @@ export function ConsentFlow() {
 
   const derivedUserPubKey = useMemo(() => toHex(userId), [userId]);
 
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  useEffect(() => {
+    let active = true;
+    setContextLoading(true);
+    setContextError(null);
+
+    fetchDemoContext()
+      .then((context) => {
+        if (!active) return;
+        setUserId(context.consent.user_id || "demo-user-001");
+        setClaimType(context.consent.claim_type || "age_over_18");
+        setEnterprisePubkey(context.consent.enterprise_pubkey || DEFAULT_ENTERPRISE_PUBKEY);
+        setDigilockerRedirectUrl(
+          context.consent.digilocker_redirect_url || DEFAULT_DIGILOCKER_REDIRECT_URL
+        );
+        setContextWarnings(context.token_warnings ?? []);
+
+        if (typeof window !== "undefined") {
+          const pendingRaw = window.localStorage.getItem(PENDING_DIGILOCKER_STORAGE_KEY);
+          if (pendingRaw) {
+            try {
+              const pending = JSON.parse(pendingRaw) as PendingDigiLockerState;
+              if (pending.user_id) {
+                setUserId(pending.user_id);
+              }
+              if (pending.claim_type) {
+                setClaimType(pending.claim_type);
+              }
+              if (pending.enterprise_pubkey) {
+                setEnterprisePubkey(pending.enterprise_pubkey);
+              }
+              if (pending.digilocker_request_id) {
+                setDigilockerRequestId(pending.digilocker_request_id);
+              }
+              if (pending.digilocker_redirect_url) {
+                setDigilockerRedirectUrl(pending.digilocker_redirect_url);
+              }
+            } catch {
+              window.localStorage.removeItem(PENDING_DIGILOCKER_STORAGE_KEY);
+            }
+          }
+        }
+      })
+      .catch((loadError) => {
+        if (!active) return;
+        setContextError(loadError instanceof Error ? loadError.message : "Failed to load demo defaults");
+      })
+      .finally(() => {
+        if (active) {
+          setContextLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  async function submitConsentRegistration() {
     setLoading(true);
     setError(null);
     setResult(null);
@@ -59,13 +132,34 @@ export function ConsentFlow() {
         digilocker_request_id: digilockerRequestId || undefined,
         digilocker_redirect_url: digilockerRedirectUrl || undefined,
         zk_backend: zkBackend,
-        algoplonk_proof_hex: zkBackend === "algoplonk" ? algoplonkProofHex || undefined : undefined,
+        algoplonk_proof_hex:
+          zkBackend === "algoplonk" ? algoplonkProofHex.trim() || undefined : undefined,
         algoplonk_public_inputs_hex:
-          zkBackend === "algoplonk" ? algoplonkPublicInputsHex || undefined : undefined
+          zkBackend === "algoplonk" ? algoplonkPublicInputsHex.trim() || undefined : undefined
       });
 
       if (response.status === "pending_digilocker_consent" && response.digilocker?.request_id) {
         setDigilockerRequestId(response.digilocker.request_id);
+
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem(
+            PENDING_DIGILOCKER_STORAGE_KEY,
+            JSON.stringify({
+              user_id: userId,
+              claim_type: claimType,
+              enterprise_pubkey: enterprisePubkey,
+              digilocker_request_id: response.digilocker.request_id,
+              digilocker_redirect_url: digilockerRedirectUrl
+            } satisfies PendingDigiLockerState)
+          );
+        }
+
+        const authUrl = response.digilocker?.auth_url;
+        if (typeof window !== "undefined" && authUrl) {
+          window.setTimeout(() => {
+            window.location.assign(authUrl);
+          }, 250);
+        }
       }
 
       if (
@@ -77,6 +171,17 @@ export function ConsentFlow() {
       ) {
         const storageKey = `shunyak:consent:${response.user_pubkey}:${response.enterprise_pubkey}`;
         window.localStorage.setItem(storageKey, response.consent_token);
+        window.localStorage.setItem(
+          "shunyak:last-consent-profile",
+          JSON.stringify({
+            user_id: userId,
+            user_pubkey: response.user_pubkey,
+            enterprise_pubkey: response.enterprise_pubkey,
+            consent_token: response.consent_token,
+            updated_at: Date.now()
+          })
+        );
+        window.localStorage.removeItem(PENDING_DIGILOCKER_STORAGE_KEY);
       }
 
       setResult(response);
@@ -85,6 +190,11 @@ export function ConsentFlow() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await submitConsentRegistration();
   }
 
   async function onRevokeConsent() {
@@ -105,6 +215,24 @@ export function ConsentFlow() {
       if (typeof window !== "undefined") {
         const storageKey = `shunyak:consent:${result.user_pubkey}:${result.enterprise_pubkey}`;
         window.localStorage.removeItem(storageKey);
+
+        const lastProfileRaw = window.localStorage.getItem("shunyak:last-consent-profile");
+        if (lastProfileRaw) {
+          try {
+            const parsed = JSON.parse(lastProfileRaw) as {
+              user_pubkey?: string;
+              enterprise_pubkey?: string;
+            };
+            if (
+              parsed.user_pubkey === result.user_pubkey &&
+              parsed.enterprise_pubkey === result.enterprise_pubkey
+            ) {
+              window.localStorage.removeItem("shunyak:last-consent-profile");
+            }
+          } catch {
+            window.localStorage.removeItem("shunyak:last-consent-profile");
+          }
+        }
       }
 
       setRevokeResult(response);
@@ -120,6 +248,18 @@ export function ConsentFlow() {
       <form className="card p-6" onSubmit={onSubmit}>
         <p className="kicker">Consent Registration</p>
         <h2 className="mt-2 text-xl font-semibold">Generate proof and commit consent state</h2>
+
+        {contextLoading ? (
+          <p className="mt-4 text-xs text-text-muted">Loading backend demo defaults...</p>
+        ) : null}
+        {contextError ? <p className="mt-4 text-sm text-warning">{contextError}</p> : null}
+        {contextWarnings.length > 0 ? (
+          <div className="mt-4 rounded-lg border border-warning/30 bg-warning/5 p-3">
+            <p className="text-xs text-warning">
+              Some backend-generated tokens are unavailable. Demo flow may require runtime secret setup.
+            </p>
+          </div>
+        ) : null}
 
         <label className="mt-5 block text-xs text-text-muted">
           User ID
@@ -164,7 +304,7 @@ export function ConsentFlow() {
             className="input-field mt-1.5"
             value={digilockerRedirectUrl}
             onChange={(e) => setDigilockerRedirectUrl(e.target.value)}
-            placeholder="https://setu.co"
+            placeholder={DEFAULT_DIGILOCKER_REDIRECT_URL}
           />
         </label>
 
@@ -173,34 +313,49 @@ export function ConsentFlow() {
           <input className="input-field mono mt-1.5" value={zkBackend} readOnly />
         </label>
 
-        <label className="mt-4 block text-xs text-text-muted">
-          AlgoPlonk Proof Hex
-          <textarea
-            className="input-field mono mt-1.5"
-            value={algoplonkProofHex}
-            onChange={(e) => setAlgoplonkProofHex(e.target.value)}
-            placeholder="0x..."
-            required={Boolean(digilockerRequestId.trim())}
-          />
-        </label>
+        <div className="mt-4 rounded-lg border border-border-subtle bg-bg p-3">
+          <p className="text-xs text-text-muted">
+            AlgoPlonk proof/public inputs are generated by backend for demo flows.
+          </p>
+          <button
+            type="button"
+            className="mono mt-2 text-xs text-text-secondary underline underline-offset-2"
+            onClick={() => setShowAdvancedInputs((previous) => !previous)}
+          >
+            {showAdvancedInputs ? "Hide advanced override" : "Show advanced override"}
+          </button>
+        </div>
 
-        <label className="mt-4 block text-xs text-text-muted">
-          AlgoPlonk Public Inputs Hex
-          <textarea
-            className="input-field mono mt-1.5 min-h-16"
-            value={algoplonkPublicInputsHex}
-            onChange={(e) => setAlgoplonkPublicInputsHex(e.target.value)}
-            placeholder="0x... (bytes32[] flattened)"
-            required={Boolean(digilockerRequestId.trim())}
-          />
-        </label>
+        {showAdvancedInputs ? (
+          <>
+            <label className="mt-4 block text-xs text-text-muted">
+              AlgoPlonk Proof Hex (optional override)
+              <textarea
+                className="input-field mono mt-1.5"
+                value={algoplonkProofHex}
+                onChange={(e) => setAlgoplonkProofHex(e.target.value)}
+                placeholder="0x..."
+              />
+            </label>
+
+            <label className="mt-4 block text-xs text-text-muted">
+              AlgoPlonk Public Inputs Hex (optional override)
+              <textarea
+                className="input-field mono mt-1.5 min-h-16"
+                value={algoplonkPublicInputsHex}
+                onChange={(e) => setAlgoplonkPublicInputsHex(e.target.value)}
+                placeholder="0x... (bytes32[] flattened)"
+              />
+            </label>
+          </>
+        ) : null}
 
         <label className="mt-4 block text-xs text-text-muted">
           Enterprise Public Key (hex)
           <input
             className="input-field mono mt-1.5"
             value={enterprisePubkey}
-            onChange={(e) => setEnterprisePubkey(e.target.value)}
+            readOnly
             minLength={64}
             maxLength={64}
             required
@@ -260,9 +415,17 @@ export function ConsentFlow() {
                     rel="noreferrer"
                     className="mono mt-3 inline-block text-xs text-text-secondary underline underline-offset-2"
                   >
-                    Open DigiLocker authorization &rarr;
+                    Redirecting to DigiLocker login... open manually &rarr;
                   </a>
                 ) : null}
+                <button
+                  type="button"
+                  className="btn-secondary mt-3"
+                  onClick={() => void submitConsentRegistration()}
+                  disabled={loading}
+                >
+                  {loading ? "Checking..." : "I completed DigiLocker - Continue"}
+                </button>
               </div>
             ) : null}
 

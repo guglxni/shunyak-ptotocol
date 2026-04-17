@@ -1,0 +1,52 @@
+name: Bug Report
+description: Report a reproducible bug
+title: "bug: <short description>"
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Provide deterministic reproduction steps.
+      placeholder: |
+        1. Go to ...
+        2. Call endpoint ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Runtime, branch/commit, deployment target, network.
+      placeholder: |
+        - Branch/commit:
+        - Local or Vercel:
+        - Algorand network:
+        - Browser/version:
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or Screenshots
+      description: Paste relevant logs or screenshots. Remove secrets.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-Submission Checks
+      options:
+        - label: I searched existing issues.
+          required: true
+        - label: I removed secrets from logs and screenshots.
+          required: true

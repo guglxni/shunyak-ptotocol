@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from api._common.agent_security import guard_agent_execution_request
 from api._common.http import JSONHandler
+from api._common.llm import resolve_litellm_runtime_config
 from agent.shunyak_agent import ShunyakAgentService
 
 
@@ -18,6 +19,11 @@ class handler(JSONHandler):
             self._send_error("amount_microalgo must be an integer", status=422)
             return
         consent_token = str(payload.get("consent_token", "")).strip() or None
+        try:
+            llm_config = resolve_litellm_runtime_config(payload.get("llm_config"))
+        except ValueError as exc:
+            self._send_error(str(exc), status=422)
+            return
 
         if not prompt:
             self._send_error("prompt is required", status=422)
@@ -45,7 +51,7 @@ class handler(JSONHandler):
             return
 
         try:
-            service = ShunyakAgentService()
+            service = ShunyakAgentService(llm_config=llm_config)
         except Exception as exc:
             self._send_error(f"agent initialization failed: {exc}", status=503)
             return

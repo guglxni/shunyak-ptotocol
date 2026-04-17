@@ -7,6 +7,7 @@ from agent.shunyak_agent import ShunyakAgentService
 from api._common.agent_security import guard_agent_execution_request
 from api._common.constants import SHUNYAK_STREAM_TICKET_TTL_SECONDS
 from api._common.http import JSONHandler
+from api._common.llm import resolve_litellm_runtime_config
 from api._common.stream_tickets import consume_stream_ticket, issue_stream_ticket
 
 
@@ -38,6 +39,15 @@ class handler(JSONHandler):
         self.wfile.write(frame.encode("utf-8"))
         self.wfile.flush()
 
+    def _safe_emit_sse(self, payload: dict[str, Any]) -> bool:
+        try:
+            self._emit_sse(payload)
+            return True
+        except BrokenPipeError:
+            return False
+        except (RuntimeError, ValueError, TypeError, OSError):
+            return False
+
     def do_POST(self) -> None:  # noqa: N802
         payload = self._read_json_body()
 
@@ -45,6 +55,17 @@ class handler(JSONHandler):
         user_pubkey = str(payload.get("user_pubkey", "")).strip()
         enterprise_pubkey = str(payload.get("enterprise_pubkey", "")).strip()
         consent_token = str(payload.get("consent_token", "")).strip() or None
+        try:
+            llm_config = resolve_litellm_runtime_config(payload.get("llm_config"))
+        except ValueError as exc:
+            self._send_error(str(exc), status=422)
+            return
+        if llm_config.enabled and llm_config.api_key:
+            self._send_error(
+                "llm_config.api_key is not supported on stream endpoint; use /api/agent/execute",
+                status=422,
+            )
+            return
 
         try:
             amount_microalgo = int(payload.get("amount_microalgo", 1_000_000) or 1_000_000)
@@ -82,6 +103,7 @@ class handler(JSONHandler):
                 "enterprise_pubkey": enterprise_pubkey,
                 "consent_token": consent_token,
                 "amount_microalgo": amount_microalgo,
+                "llm_config": llm_config.public_payload(),
             },
             ttl_seconds=SHUNYAK_STREAM_TICKET_TTL_SECONDS,
         )
@@ -116,6 +138,11 @@ class handler(JSONHandler):
         enterprise_pubkey = str(payload.get("enterprise_pubkey", "")).strip()
         consent_token = str(payload.get("consent_token", "")).strip() or None
         amount_microalgo = int(payload.get("amount_microalgo", 1_000_000) or 1_000_000)
+        try:
+            llm_config = resolve_litellm_runtime_config(payload.get("llm_config"))
+        except ValueError as exc:
+            self._send_error(str(exc), status=422)
+            return
 
         try:
             if not self._set_sse_headers():
@@ -124,7 +151,7 @@ class handler(JSONHandler):
             def on_event(event: dict[str, str]) -> None:
                 self._emit_sse({"type": "event", "event": event})
 
-            service = ShunyakAgentService()
+            service = ShunyakAgentService(llm_config=llm_config)
             result = service.execute_task(
                 prompt=prompt,
                 user_pubkey=user_pubkey,
@@ -138,12 +165,6 @@ class handler(JSONHandler):
         except BrokenPipeError:
             return
         except (RuntimeError, ValueError) as exc:
-            try:
-                self._emit_sse({"type": "error", "error": str(exc)})
-            except Exception:
-                pass
+            self._safe_emit_sse({"type": "error", "error": str(exc)})
         except Exception:
-            try:
-                self._emit_sse({"type": "error", "error": "stream_execution_failed"})
-            except Exception:
-                pass
+            self._safe_emit_sse({"type": "error", "error": "stream_execution_failed"})

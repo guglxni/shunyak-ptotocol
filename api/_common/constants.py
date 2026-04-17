@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import os
+import tempfile
 from pathlib import Path
+from urllib.parse import urlparse
 
 try:
     from algosdk import account, encoding, mnemonic
@@ -39,6 +41,42 @@ def _pubkey_hex_from_mnemonic(seed_phrase: str) -> str | None:
         return encoding.decode_address(address).hex()
     except Exception:
         return None
+
+
+def _normalize_public_base_url(raw: str) -> str:
+    candidate = raw.strip()
+    if not candidate:
+        return ""
+
+    if not candidate.startswith(("http://", "https://")):
+        candidate = f"https://{candidate}"
+
+    parsed = urlparse(candidate)
+    if not parsed.netloc:
+        return ""
+
+    return f"{parsed.scheme}://{parsed.netloc}".rstrip("/")
+
+
+def _default_digilocker_redirect_url() -> str:
+    for raw_base in (
+        os.getenv("SHUNYAK_PUBLIC_BASE_URL", ""),
+        os.getenv("VERCEL_PROJECT_PRODUCTION_URL", ""),
+        os.getenv("VERCEL_URL", ""),
+    ):
+        normalized = _normalize_public_base_url(raw_base)
+        if normalized:
+            return f"{normalized}/consent"
+
+    return "http://localhost:3000/consent"
+
+
+def _runtime_file_path(env_name: str, filename: str) -> Path:
+    configured = os.getenv(env_name, "").strip()
+    if configured:
+        return Path(configured)
+    runtime_dir = Path(tempfile.gettempdir()) / "shunyak-runtime"
+    return runtime_dir / filename
 
 
 _VERCEL_ENV = os.getenv("VERCEL_ENV", "").strip().lower()
@@ -94,7 +132,8 @@ SHUNYAK_DIGILOCKER_BASE_URL = (
     or "https://dg-sandbox.setu.co"
 )
 SHUNYAK_DIGILOCKER_REDIRECT_URL = (
-    os.getenv("SHUNYAK_DIGILOCKER_REDIRECT_URL", "https://setu.co").strip() or "https://setu.co"
+    os.getenv("SHUNYAK_DIGILOCKER_REDIRECT_URL", _default_digilocker_redirect_url()).strip()
+    or _default_digilocker_redirect_url()
 )
 SHUNYAK_DIGILOCKER_CLIENT_ID = os.getenv("SHUNYAK_DIGILOCKER_CLIENT_ID", "").strip()
 SHUNYAK_DIGILOCKER_CLIENT_SECRET = os.getenv("SHUNYAK_DIGILOCKER_CLIENT_SECRET", "").strip()
@@ -138,11 +177,11 @@ SHUNYAK_CONSENT_REQUIRE_BOX_PARITY = _env_bool(
     SHUNYAK_APP_ID > 0,
 )
 
-CONSENT_STORE_PATH = Path(os.getenv("SHUNYAK_CONSENT_STORE", "/tmp/shunyak-consent-store.json"))
-AUDIT_LOG_PATH = Path(os.getenv("DOLIOS_AUDIT_LOG", "/tmp/shunyak-audit.jsonl"))
+CONSENT_STORE_PATH = _runtime_file_path("SHUNYAK_CONSENT_STORE", "consent-store.json")
+AUDIT_LOG_PATH = _runtime_file_path("DOLIOS_AUDIT_LOG", "audit.jsonl")
 
 TESTNET_EXPLORER_TX_BASE = os.getenv(
-    "ALGORAND_EXPLORER_TX_BASE", "https://testnet.algoexplorer.io/tx/"
+    "ALGORAND_EXPLORER_TX_BASE", "https://lora.algokit.io/testnet/transaction/"
 )
 
 _FALLBACK_ENTERPRISE_PUBKEY = "7368756e79616b2d656e74657270726973650000000000000000000000000000"

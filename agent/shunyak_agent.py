@@ -10,6 +10,7 @@ from agent.dolios_bridge import load_dolios_components
 from agent.mcp_server import CapabilityPolicyError, MCPToolExecutionError, ShunyakMCPServer
 from agent.tools.dlp_guard import scan_tool_args
 from api._common.audit import append_audit_entry, read_audit_entries
+from api._common.llm import LiteLLMRuntimeConfig, resolve_litellm_runtime_config
 
 
 CALLBACK_EXCEPTIONS = (
@@ -35,7 +36,7 @@ class AgentRuntimeFailure:
 class ShunyakAgentService:
     """Consent-gated execution service using Dolios hardened primitives where available."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, llm_config: LiteLLMRuntimeConfig | None = None) -> None:
         components = load_dolios_components()
         self._source = components["source"]
         self._config_cls = components["config_cls"]
@@ -45,6 +46,8 @@ class ShunyakAgentService:
         self.session_id = f"shunyak-{uuid.uuid4().hex[:12]}"
 
         self.config = self._load_config()
+        self._llm_config = llm_config or resolve_litellm_runtime_config(None)
+        self._configure_dolios_inference()
         self.workflow = self._workflow_policy_cls(self.config)
 
         self.vault = self._vault_cls()
@@ -53,6 +56,40 @@ class ShunyakAgentService:
             self.vault.load_from_env(mnemonic_key, label=mnemonic_key)
 
         self.mcp = ShunyakMCPServer()
+
+    def _configure_dolios_inference(self) -> None:
+        if not self._llm_config.enabled:
+            return
+        if not hasattr(self.config, "inference"):
+            return
+        inference = getattr(self.config, "inference")
+        if not hasattr(inference, "providers"):
+            return
+
+        providers = getattr(inference, "providers")
+        if not isinstance(providers, dict):
+            return
+
+        provider_profile = self._llm_config.dolios_provider_profile()
+        merged_profile = dict(providers.get(self._llm_config.provider, {}))
+        merged_profile.update(provider_profile)
+        providers[self._llm_config.provider] = merged_profile
+
+        setattr(inference, "providers", providers)
+        if hasattr(inference, "default_provider"):
+            setattr(inference, "default_provider", self._llm_config.provider)
+        if hasattr(inference, "default_model"):
+            setattr(inference, "default_model", self._llm_config.model)
+
+        os.environ["DOLIOS_INFERENCE_PROVIDER"] = self._llm_config.provider
+        os.environ["DOLIOS_INFERENCE_MODEL"] = self._llm_config.model
+        if self._llm_config.api_base:
+            os.environ["OPENAI_API_BASE"] = self._llm_config.api_base
+            os.environ["OPENAI_BASE_URL"] = self._llm_config.api_base
+        if self._llm_config.api_version:
+            os.environ["OPENAI_API_VERSION"] = self._llm_config.api_version
+        if self._llm_config.api_key:
+            os.environ["OPENAI_API_KEY"] = self._llm_config.api_key
 
     def _load_config(self) -> Any:
         cfg = self._config_cls.load(Path.cwd())
@@ -235,6 +272,12 @@ class ShunyakAgentService:
         )
 
         if not compliance["valid"]:
+            if self._llm_config.enabled:
+                emit_event(
+                    "info",
+                    "llm",
+                    "Dolios inference skipped because consent compliance failed",
+                )
             settle_allowed, settle_reason = self.workflow.check(
                 self.session_id, "execute_algo_settlement"
             )
@@ -258,6 +301,18 @@ class ShunyakAgentService:
                 "audit_entries": read_audit_entries(limit=8),
                 "telemetry": {"event_callback_errors": callback_errors},
             }
+
+        if self._llm_config.enabled:
+            emit_event(
+                "info",
+                "llm",
+                (
+                    "Dolios inference route configured: "
+                    f"{self._llm_config.provider}/{self._llm_config.model}"
+                ),
+            )
+        else:
+            emit_event("info", "llm", "Dolios inference route: runtime defaults")
 
         settle_allowed, settle_reason = self.workflow.check(
             self.session_id, "execute_algo_settlement"

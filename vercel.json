@@ -32,6 +32,10 @@
       "use": "@vercel/python"
     },
     {
+      "src": "api/demo/context.py",
+      "use": "@vercel/python"
+    },
+    {
       "src": "api/audit/log.py",
       "use": "@vercel/python"
     }

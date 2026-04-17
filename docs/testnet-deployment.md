@@ -2,74 +2,75 @@
 
 Last verified: 2026-04-16
 
-## Deployed Smart Contract
+## 1. Deployed Smart Contract
 
 | Field | Value |
-|-------|-------|
-| App ID | 758909516 |
-| App Address | MBC3GSLWOUXTW7EPC4X5AOA2WFSLUEGLNKHHMQ3YEM3SZ4QF2OIXXBI2YE |
-| Creator / Signer | SHYFV65OX2KCXPFBKZBZNSYL6RE4PFAWHVWL2RIAR4QMULX7FS3NJJ7CFU |
+| --- | --- |
 | Network | Algorand TestNet |
-| Algod | https://testnet-api.algonode.cloud |
-| Indexer | https://testnet-idx.algonode.cloud |
-| Deploy Txid | 37V5ZNDZ4EJUNPJCVQEEUEGBTKWNFGWK5NWLVTGKSJ62SR6PHI5A |
+| App ID | `758909516` |
+| App Address | `MBC3GSLWOUXTW7EPC4X5AOA2WFSLUEGLNKHHMQ3YEM3SZ4QF2OIXXBI2YE` |
+| Creator / Registrar | `SHYFV65OX2KCXPFBKZBZNSYL6RE4PFAWHVWL2RIAR4QMULX7FS3NJJ7CFU` |
+| Deploy Txid | `37V5ZNDZ4EJUNPJCVQEEUEGBTKWNFGWK5NWLVTGKSJ62SR6PHI5A` |
+| Algod Endpoint | `https://testnet-api.algonode.cloud` |
+| Indexer Endpoint | `https://testnet-idx.algonode.cloud` |
 
-Contract Methods: `register_consent`, `revoke_consent`, `check_status`
+## 2. Explorer Links
 
-## On-Chain Consent State
+- App: `https://lora.algokit.io/testnet/application/758909516`
+- Txid: `https://lora.algokit.io/testnet/transaction/37V5ZNDZ4EJUNPJCVQEEUEGBTKWNFGWK5NWLVTGKSJ62SR6PHI5A`
+- Creator account: `https://lora.algokit.io/testnet/account/SHYFV65OX2KCXPFBKZBZNSYL6RE4PFAWHVWL2RIAR4QMULX7FS3NJJ7CFU`
 
-5 consent boxes stored in Box Storage:
+## 3. Contract Functionality
+
+Contract methods currently deployed:
+
+| Method | Signature | Purpose |
+| --- | --- | --- |
+| `register_consent` | `register_consent(byte[],byte[],byte[],byte[],uint64)void` | Writes or updates consent record in app box storage after attestation checks |
+| `revoke_consent` | `revoke_consent(byte[],byte[])void` | Deletes consent box record for user-enterprise pair |
+| `check_status` | `check_status(byte[],byte[])(bool,uint64)` | Returns active/expired state and expiry timestamp |
+
+Data model:
+
+- Box key derivation:
+  - `SHA256(user_pubkey + enterprise_pubkey + app_id.to_bytes(8, "big"))`
+- Box value schema (64 bytes):
+  - `[0:32]` consent hash
+  - `[32:40]` expiry timestamp (`uint64`)
+  - `[40:41]` version byte
+  - `[41:64]` reserved
+
+## 4. On-Chain Consent State Snapshot
+
+At the time of verification, the app contained multiple consent boxes with mixed status (`ACTIVE`, `EXPIRED`).
+
+Example status view:
 
 | Box Key (truncated) | Expiry | Status |
-|---------------------|--------|--------|
-| 2d1b0ab594de5ded... | 1776354395 | ACTIVE |
-| 287354147de6277b... | 1776354211 | ACTIVE |
-| 728dd8f96787c6cb... | 1776350324 | EXPIRED |
-| bce6e62d63f6dffe... | 1776350281 | EXPIRED |
-| 0e8e176104319051... | 1776350165 | EXPIRED |
+| --- | --- | --- |
+| `2d1b0ab594de5ded...` | `1776354395` | ACTIVE |
+| `287354147de6277b...` | `1776354211` | ACTIVE |
+| `728dd8f96787c6cb...` | `1776350324` | EXPIRED |
 
-Box value schema: `[consent_hash: 32B][expiry: 8B uint64][version: 1B][reserved: 23B]`
+## 5. Runtime Topology
 
-Box key derivation: `SHA256(user_pubkey + enterprise_pubkey + app_id.to_bytes(8, "big"))`
-
-## Account Balances
-
-| Account | Balance | Min-Balance | Spendable |
-|---------|---------|-------------|-----------|
-| Signer (SHYFV65O...) | 5.566 ALGO | 0.550 ALGO | 5.016 ALGO |
-| App (MBC3GS...) | 0.310 ALGO | 0.305 ALGO | 0.006 ALGO |
-
-Signer has created 3 apps on TestNet, confirming iterative development history.
-
-## Transaction History
-
-10+ confirmed transactions on the signer account, mix of `pay` (funding, settlement) and `appl` (contract create, consent register/revoke) types.
-
-## Deployment Architecture
-
-```
-Vercel (shunyak-protocol.vercel.app)
-  |
-  +-- Next.js 16 Frontend (static pages)
-  |     /consent, /blocked, /authorized, /showcase
-  |
-  +-- Python Serverless Functions (@vercel/python 4.6.0)
-        /api/consent/register
-        /api/consent/status
-        /api/consent/revoke
-        /api/agent/execute
-        /api/agent/stream (SSE)
-        /api/algorand/showcase
-        /api/audit/log
-            |
-            v
-        Algorand TestNet
-        (App 758909516 / Box Storage / PaymentTxn)
+```mermaid
+flowchart TB
+  FE[Next.js Frontend on Vercel] --> API[Python API Functions]
+  API --> AG[Dolios Agent Runtime]
+  API --> Chain[Algorand TestNet]
+  AG --> Chain
+  Chain --> App[Consent App 758909516]
 ```
 
-## Verification Commands
+Text alternative:
+- Frontend invokes API routes on Vercel.
+- API and agent runtime both interact with Algorand TestNet.
+- Consent state is persisted in the deployed app's box storage.
 
-Check app exists:
+## 6. Verification Commands
+
+Check app existence:
 
 ```bash
 python3 -c "
@@ -79,7 +80,7 @@ print(c.application_info(758909516))
 "
 ```
 
-Check consent boxes:
+Check box inventory:
 
 ```bash
 python3 -c "
@@ -89,17 +90,26 @@ print(c.application_boxes(758909516))
 "
 ```
 
-Check signer balance:
+Check deploy metadata from local artifact:
 
 ```bash
-python3 -c "
-from algosdk.v2client.algod import AlgodClient
-c = AlgodClient('', 'https://testnet-api.algonode.cloud')
-info = c.account_info('SHYFV65OX2KCXPFBKZBZNSYL6RE4PFAWHVWL2RIAR4QMULX7FS3NJJ7CFU')
-print(f'{info[\"amount\"]/1e6:.4f} ALGO')
-"
+jq . contracts/artifacts/deployment-result.json
 ```
 
-## Architecture Diagram
+## 7. Vercel Runtime Integration Notes
 
-See `docs/architecture.drawio` for the full system architecture and consent-gated execution flow diagrams (open with draw.io or diagrams.net).
+To use this exact deployed app in runtime:
+
+- Set `SHUNYAK_APP_ID=758909516`
+- Ensure registrar and signer mnemonics are funded and configured
+- Keep `SHUNYAK_ENABLE_TESTNET_TX=true`
+- Validate `/api/algorand/showcase` output before demo run
+
+## 8. Change Control for Future Deployments
+
+When a new app is deployed:
+
+1. Update `contracts/artifacts/deployment-result.json`.
+2. Update this document's contract snapshot and explorer links.
+3. Update runtime environment (`SHUNYAK_APP_ID`) in Vercel.
+4. Re-run smoke checks in `docs/deployment.md`.

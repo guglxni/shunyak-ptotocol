@@ -472,7 +472,7 @@ ORACLE_PUBLIC_KEY_HEX=<p256_public_key>   # Also registered in contract
 
 # DigiLocker (Setu sandbox)
 SHUNYAK_DIGILOCKER_BASE_URL=https://dg-sandbox.setu.co
-SHUNYAK_DIGILOCKER_REDIRECT_URL=https://setu.co
+SHUNYAK_DIGILOCKER_REDIRECT_URL=https://shunyak-protocol.vercel.app/consent
 SHUNYAK_DIGILOCKER_CLIENT_ID=<setu_client_id>
 SHUNYAK_DIGILOCKER_CLIENT_SECRET=<setu_client_secret>
 SHUNYAK_DIGILOCKER_PRODUCT_INSTANCE_ID=<setu_product_instance_id>
@@ -515,7 +515,7 @@ algokit deploy --network testnet
 # Copy APP_ID to Vercel env vars
 
 # 2. Fund agent wallet on testnet
-# Use Algorand Testnet Dispenser: https://testnet.algoexplorer.io/dispenser
+# Use Algorand Testnet Dispenser: https://bank.testnet.algorand.network
 
 # 3. Deploy to Vercel
 vercel --prod
@@ -684,8 +684,8 @@ Agent Prompt:
 
 ## 10. Key URLs for Demo
 
-- Algorand Testnet Dispenser: `https://testnet.algoexplorer.io/dispenser`
-- Testnet Block Explorer: `https://testnet.algoexplorer.io`
+- Algorand Testnet Dispenser: `https://bank.testnet.algorand.network`
+- Testnet Block Explorer: `https://lora.algokit.io/testnet`
 - AlgoNode Testnet Algod: `https://testnet-api.algonode.cloud`
 - AlgoKit docs: `https://developer.algorand.org/docs/get-started/algokit`
 - Vercel Python runtime: `https://vercel.com/docs/functions/runtimes/python`

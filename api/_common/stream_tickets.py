@@ -11,7 +11,24 @@ from typing import Any
 
 from api._common.constants import IS_DEPLOYED_ENV
 
-_DEFAULT_STREAM_TICKET_SECRET = "shunyak-demo-stream-ticket-secret"
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _derive_insecure_local_ticket_key() -> bytes:
+    material = ":".join(
+        [
+            "shunyak-local-insecure-stream-ticket-key",
+            os.getenv("USER", "local"),
+            os.getenv("HOSTNAME", "localhost"),
+            os.getcwd(),
+        ]
+    )
+    return hashlib.sha256(material.encode("utf-8")).digest()
 
 
 def _b64url_encode(raw: bytes) -> str:
@@ -26,15 +43,29 @@ def _b64url_decode(raw: str) -> bytes:
 def _resolve_stream_ticket_secret() -> bytes:
     configured = os.getenv("SHUNYAK_STREAM_TICKET_SECRET", "").strip()
     fallback = os.getenv("SHUNYAK_DEMO_SECRET", "").strip()
+    allow_insecure = _env_bool("SHUNYAK_ALLOW_INSECURE_DEMO_SECRET", False)
 
     if configured:
-        if IS_DEPLOYED_ENV and configured == _DEFAULT_STREAM_TICKET_SECRET:
+        if IS_DEPLOYED_ENV and configured.lower() in {
+            "shunyak-demo-stream-ticket-secret",
+            "shunyak-demo-secret",
+            "demo-secret",
+            "changeme",
+        }:
             raise RuntimeError(
-                "SHUNYAK_STREAM_TICKET_SECRET must not use the default value in deployed environments"
+                "SHUNYAK_STREAM_TICKET_SECRET must not use placeholder values in deployed environments"
             )
         return configured.encode("utf-8")
 
     if fallback:
+        if IS_DEPLOYED_ENV and fallback.lower() in {
+            "shunyak-demo-secret",
+            "demo-secret",
+            "changeme",
+        }:
+            raise RuntimeError(
+                "SHUNYAK_DEMO_SECRET must not use placeholder values in deployed environments"
+            )
         return fallback.encode("utf-8")
 
     if IS_DEPLOYED_ENV:
@@ -42,7 +73,13 @@ def _resolve_stream_ticket_secret() -> bytes:
             "SHUNYAK_STREAM_TICKET_SECRET (or SHUNYAK_DEMO_SECRET) must be configured in deployed environments"
         )
 
-    return _DEFAULT_STREAM_TICKET_SECRET.encode("utf-8")
+    if allow_insecure:
+        return _derive_insecure_local_ticket_key()
+
+    raise RuntimeError(
+        "SHUNYAK_STREAM_TICKET_SECRET or SHUNYAK_DEMO_SECRET must be configured. "
+        "Set SHUNYAK_ALLOW_INSECURE_DEMO_SECRET=true only for isolated local demos."
+    )
 
 
 def issue_stream_ticket(payload: dict[str, Any], *, ttl_seconds: int) -> tuple[str, int]:

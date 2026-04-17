@@ -45,6 +45,15 @@ venv/
 *.log
 .tmp/
 .benchmarks/
+docs/dorahacks-video-demo-script.md
+
+# Security scan artifacts (local/internal)
+security-reports/
+.tmp-semgrep-venv/
+.tmp-security-venv/
+
+# Internal security working notes
+security-reports/internal-security-remediation-2026-04-17.md
 
 # Generated deployment state
 contracts/artifacts/deployment-result.json

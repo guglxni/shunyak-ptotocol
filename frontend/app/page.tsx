@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LiteLLMConfigPanel } from "../components/LiteLLMConfigPanel";
 
 const screens = [
   {
@@ -64,6 +65,8 @@ export default function HomePage() {
           </Link>
         ))}
       </section>
+
+      <LiteLLMConfigPanel />
 
       <footer className="mt-12 border-t border-border pt-6">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-text-muted">

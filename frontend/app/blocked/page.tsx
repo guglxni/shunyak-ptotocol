@@ -17,6 +17,7 @@ export default function BlockedPage() {
       </header>
 
       <AgentTerminal
+        scenario="blocked"
         title="Process user without active consent"
         defaultPrompt="Process financial history for user-999 and issue micro-loan"
         defaultUserPubkey="757365722d393939000000000000000000000000000000000000000000000000"
