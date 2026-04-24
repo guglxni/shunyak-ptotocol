@@ -1,5 +1,5 @@
 py-algorand-sdk>=2.7.0
-algokit-utils>=3.0.0
+algokit-utils>=4.2.3
 pyteal>=0.26.0
 cryptography>=42.0
 httpx>=0.27.0
